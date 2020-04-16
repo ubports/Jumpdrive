@@ -1,51 +1,49 @@
 CROSS_FLAGS = ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
 
-all: pine64-pinephone.img.xz pine64-pinetab.img.xz
+all: recovery-pinephone.img.xz recovery-pinetab.img.xz
 
-
-pine64-pinephone.img: fat-pine64-pinephone.img u-boot-sunxi-with-spl.bin
-	rm -f $@
-	truncate --size 50M $@
-	parted -s $@ mktable msdos
-	parted -s $@ mkpart primary fat32 2048s 100%
-	parted -s $@ set 1 boot on
-	dd if=u-boot-sunxi-with-spl.bin of=$@ bs=8k seek=1
-	dd if=fat-$@ of=$@ seek=1024 bs=1k
-
-fat-pine64-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz pine64-pinephone.scr dtbs/sunxi/sun50i-a64-pinephone.dtb
+recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinephone.dtb
 	@echo "MKFS  $@"
 	@rm -f $@
 	@truncate --size 40M $@
-	@mkfs.fat -F32 $@
-	
-	@mcopy -i $@ kernel-sunxi.gz ::Image.gz
-	@mcopy -i $@ dtbs/sunxi/sun50i-a64-pinephone.dtb ::sun50i-a64-pinephone.dtb
-	@mcopy -i $@ initramfs-pine64-pinephone.gz ::initramfs.gz
-	@mcopy -i $@ pine64-pinephone.scr ::boot.scr
+	@mkfs.ext4 $@
+	@mkdir mnt
+	@sudo mount $@ mnt
 
-pine64-pinetab.img: fat-pine64-pinetab.img u-boot-sunxi-with-spl.bin
-	rm -f $@
-	truncate --size 50M $@
-	parted -s $@ mktable msdos
-	parted -s $@ mkpart primary fat32 2048s 100%
-	parted -s $@ set 1 boot on
-	dd if=u-boot-sunxi-with-spl.bin of=$@ bs=8k seek=1
-	dd if=fat-$@ of=$@ seek=1024 bs=1k
+	@sudo cp kernel-sunxi.gz mnt/vmlinuz
+	@sudo cp dtbs/sunxi/sun50i-a64-pinephone.dtb mnt/dtb
+	@sudo cp initramfs-pine64-pinephone.gz mnt/initrd.img
 
-fat-pine64-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz pine64-pinetab.scr dtbs/sunxi/sun50i-a64-pinetab.dtb
+	@sudo umount $@
+	@rm -r mnt
+
+recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinetab.dtb
 	@echo "MKFS  $@"
 	@rm -f $@
 	@truncate --size 40M $@
-	@mkfs.fat -F32 $@
-	
-	@mcopy -i $@ kernel-sunxi.gz ::Image.gz
-	@mcopy -i $@ dtbs/sunxi/sun50i-a64-pinetab.dtb ::sun50i-a64-pinetab.dtb
-	@mcopy -i $@ initramfs-pine64-pinetab.gz ::initramfs.gz
-	@mcopy -i $@ pine64-pinetab.scr ::boot.scr
+	@mkfs.ext4 $@
+	@mkdir mnt
+	@sudo mount $@
+
+	@cp kernel-sunxi.gz mnt/vmlinuz
+	@cp dtbs/sunxi/sun50i-a64-pinetab.dtb mnt/dtb
+	@cp initramfs-pine64-pinetab.gz mnt/initrd.img
+
+	@sudo umount $@
+	@rm -r mnt
 
 %.img.xz: %.img
 	@echo "XZ    $@"
 	@xz -c $< > $@
+
+initramfs/bin/e2fsprogs: src/e2fsprogs/e2fsck
+	@echo "MAKE  $@"
+	(cd src/e2fsprogs && ./configure CFLAGS='-g -O2 -static' CC=aarch64-linux-gnu-gcc  --host=aarch64-linux-gnu)
+	@$(MAKE) -C src/e2fsprogs/e2fsck e2fsck.static
+	@$(MAKE) -C src/e2fsprogs/misc mke2fs.static tune2fs.static
+	@cp src/e2fsprogs/e2fsck/e2fsck.static initramfs/bin/e2fsck
+	@cp src/e2fsprogs/misc/mke2fs.static initramfs/bin/mke2fs
+	@cp src/e2fsprogs/misc/tune2fs.static initramfs/bin/tune2fs
 
 initramfs/bin/busybox: src/busybox src/busybox_config
 	@echo "MAKE  $@"
@@ -53,12 +51,12 @@ initramfs/bin/busybox: src/busybox src/busybox_config
 	@cp src/busybox_config build/busybox/.config
 	@$(MAKE) -C src/busybox O=../../build/busybox $(CROSS_FLAGS)
 	@cp build/busybox/busybox initramfs/bin/busybox
-	
+
 splash/%.ppm.gz: splash/%.ppm
 	@echo "GZ    $@"
 	@gzip < $< > $@
-	
-initramfs-%.cpio: initramfs/bin/busybox initramfs/init initramfs/init_functions.sh splash/%.ppm.gz splash/%-error.ppm.gz
+
+initramfs-%.cpio: initramfs/bin/busybox initramfs/bin/e2fsprogs initramfs/init initramfs/system-image-upgrader initramfs/init_functions.sh splash/%.ppm.gz splash/%-error.ppm.gz
 	@echo "CPIO  $@"
 	@rm -rf initramfs-$*
 	@cp -r initramfs initramfs-$*
@@ -67,11 +65,11 @@ initramfs-%.cpio: initramfs/bin/busybox initramfs/init initramfs/init_functions.
 	@cp splash/$*-error.ppm.gz initramfs-$*/error.ppm.gz
 	@cp src/info-$*.sh initramfs-$*/info.sh
 	@cd initramfs-$*; find . | cpio -H newc -o > ../$@
-	
+
 initramfs-%.gz: initramfs-%.cpio
 	@echo "GZ    $@"
 	@gzip < $< > $@
-	
+
 kernel-sunxi.gz: src/linux_config
 	@echo "MAKE  $@"
 	@mkdir -p build/linux-sunxi
@@ -81,17 +79,6 @@ kernel-sunxi.gz: src/linux_config
 	@$(MAKE) -C src/linux O=../../build/linux-sunxi $(CROSS_FLAGS)
 	@cp build/linux-sunxi/arch/arm64/boot/Image.gz $@
 	@cp build/linux-sunxi/arch/arm64/boot/dts/allwinner/*.dtb dtbs/sunxi/
-
-%.scr: src/%.txt
-	@echo "MKIMG $@"
-	@mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d $< $@
-	
-u-boot-sunxi-with-spl.bin:
-	@echo "WGET  $@"
-	@wget http://dl-cdn.alpinelinux.org/alpine/edge/main/aarch64/u-boot-pine64-2020.01-r0.apk
-	@tar -xvf u-boot-pine64-2020.01-r0.apk usr/share/u-boot/pine64-lts/u-boot-sunxi-with-spl.bin --strip-components 4
-	
-
 
 .PHONY: clean cleanfast
 

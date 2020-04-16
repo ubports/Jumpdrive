@@ -21,6 +21,11 @@ mkdir -p /sbin
 mkdir -p /usr/sbin
 echo "Installing Busybox..." && /bin/busybox --install -s
 
+echo "Setup mke2fs"
+ln /bin/mke2fs /bin/mkfs.ext2
+ln /bin/mke2fs /bin/mkfs.ext3
+ln /bin/mke2fs /bin/mkfs.ext4
+
 # Mount things needed by this script
 mkdir /proc
 mkdir /sys
@@ -52,6 +57,52 @@ start_udhcpd
 setup_telnetd
 
 gzip -c -d splash.ppm.gz > /splash.ppm
-fbsplash -s /splash.ppm
+mkfifo cmd_pipe
+
+echo "
+BAR_WIDTH=620
+BAR_HEIGHT=20
+BAR_LEFT=50
+BAR_TOP=1100
+BAR_R=100
+BAR_G=100
+BAR_B=100" > splash_conf
+
+fbsplash -s /splash.ppm -f cmd_pipe -i splash_conf -c &
+
+if grep -q devnum= /proc/cmdline; then
+    devnum=$(cat /proc/cmdline | sed "s/ /\n/g" | grep devnum= | awk -F "=" '{ print $2 }')
+else
+	# Fallback to internal if all else fails xD
+	devnum="2"
+fi
+
+# System - image things
+ln -s /etc/recovery.fstab.${devnum} /etc/recovery.fstab
+ln -s /etc/recovery.fstab.${devnum} /etc/fstab
+
+mkdir /persist
+mount /persist
+rm /persist/reboot-recovery
+umount /persist
+
+mkdir /cache
+mkdir /system
+mkdir /data
+
+mount /cache
+mount /system
+mount /data
+if [ -f /cache/recovery/ubuntu_command ]; then
+	echo "0" > cmd_pipe
+
+	echo "Running system update!"
+	echo "PLEASE WAIT!"
+
+	sh ./system-image-upgrader /cache/recovery/ubuntu_command
+	sync
+	reboot -f
+	exit 1
+fi
 
 loop_forever
