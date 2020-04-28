@@ -54,4 +54,17 @@ setup_telnetd
 gzip -c -d splash.ppm.gz > /splash.ppm
 fbsplash -s /splash.ppm
 
+# System - image things
+ln -s /etc/recovery.fstab /etc/fstab
+mkdir /cache
+mkdir /system
+mkdir /userdata
+
+mount /cache
+mount /system
+mount /userdata
+if [ -f /cache/recovery/ubuntu_command ]; then
+	/system-image-upgrader /cache/recovery/ubuntu_command
+fi
+
 loop_forever

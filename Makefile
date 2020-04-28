@@ -7,20 +7,30 @@ recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi
 	@rm -f $@
 	@truncate --size 40M $@
 	@mkfs.ext4 $@
+	@mkdir mnt
+	@sudo mount $@ mnt
 
-	@mcopy -i $@ kernel-sunxi.gz ::vmlinuz
-	@mcopy -i $@ dtbs/sunxi/sun50i-a64-pinephone.dtb ::dtb
-	@mcopy -i $@ initramfs-pine64-pinephone.gz ::initramfs.img
+	@sudo cp kernel-sunxi.gz mnt/vmlinuz
+	@sudo cp dtbs/sunxi/sun50i-a64-pinephone.dtb mnt/dtb
+	@sudo cp initramfs-pine64-pinephone.gz mnt/initrd.img
+
+	@sudo umount $@
+	@rm -r mnt
 
 recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinetab.dtb
 	@echo "MKFS  $@"
 	@rm -f $@
 	@truncate --size 40M $@
-	@mkfs.fat -F32 $@
+	@mkfs.ext4 $@
+	@mkdir mnt
+	@sudo mount $@
 
-	@mcopy -i $@ kernel-sunxi.gz ::vmlinuz
-	@mcopy -i $@ dtbs/sunxi/sun50i-a64-pinetab.dtb ::dtb
-	@mcopy -i $@ initramfs-pine64-pinetab.gz ::initramfs.img
+	@cp kernel-sunxi.gz mnt/vmlinuz
+	@cp dtbs/sunxi/sun50i-a64-pinetab.dtb mnt/dtb
+	@cp initramfs-pine64-pinetab.gz mnt/initrd.img
+
+	@sudo umount $@
+	@rm -r mnt
 
 %.img.xz: %.img
 	@echo "XZ    $@"
@@ -58,7 +68,7 @@ kernel-sunxi.gz: src/linux_config
 	@cp src/linux_config build/linux-sunxi/.config
 	@$(MAKE) -C src/linux O=../../build/linux-sunxi $(CROSS_FLAGS) olddefconfig
 	@$(MAKE) -C src/linux O=../../build/linux-sunxi $(CROSS_FLAGS)
-	@cp build/linux-sunxi/arch/arm64/boot/vmlinuz $@
+	@cp build/linux-sunxi/arch/arm64/boot/Image.gz $@
 	@cp build/linux-sunxi/arch/arm64/boot/dts/allwinner/*.dtb dtbs/sunxi/
 
 .PHONY: clean cleanfast
