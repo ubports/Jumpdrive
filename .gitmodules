@@ -5,3 +5,6 @@
 	path = src/linux
 	url = https://gitlab.com/pine64-org/linux.git
 	branch = pine64-kernel-5.5.y
+[submodule "src/e2fsprogs"]
+	path = src/e2fsprogs
+	url = https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git

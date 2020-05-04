@@ -36,6 +36,15 @@ recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun
 	@echo "XZ    $@"
 	@xz -c $< > $@
 
+initramfs/bin/e2fsprogs: src/e2fsprogs/e2fsck
+	@echo "MAKE  $@"
+	(cd src/e2fsprogs && ./configure CFLAGS='-g -O2 -static' CC=aarch64-linux-gnu-gcc  --host=aarch64-linux-gnu)
+	@$(MAKE) -C src/e2fsprogs/e2fsck e2fsck.static
+	@$(MAKE) -C src/e2fsprogs/misc mke2fs.static tune2fs.static
+	@cp src/e2fsprogs/e2fsck/e2fsck.static initramfs/bin/e2fsck
+	@cp src/e2fsprogs/misc/mke2fs.static initramfs/bin/mke2fs
+	@cp src/e2fsprogs/misc/tune2fs.static initramfs/bin/tune2fs
+
 initramfs/bin/busybox: src/busybox src/busybox_config
 	@echo "MAKE  $@"
 	@mkdir -p build/busybox
@@ -47,7 +56,7 @@ splash/%.ppm.gz: splash/%.ppm
 	@echo "GZ    $@"
 	@gzip < $< > $@
 
-initramfs-%.cpio: initramfs/bin/busybox initramfs/init initramfs/init_functions.sh splash/%.ppm.gz splash/%-error.ppm.gz
+initramfs-%.cpio: initramfs/bin/busybox initramfs/bin/e2fsprogs initramfs/init initramfs/system-image-upgrader initramfs/init_functions.sh splash/%.ppm.gz splash/%-error.ppm.gz
 	@echo "CPIO  $@"
 	@rm -rf initramfs-$*
 	@cp -r initramfs initramfs-$*
