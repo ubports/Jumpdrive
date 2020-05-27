@@ -38,7 +38,8 @@ recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun
 
 initramfs/bin/e2fsprogs: src/e2fsprogs/e2fsck
 	@echo "MAKE  $@"
-	(cd src/e2fsprogs && ./configure CFLAGS='-g -O2 -static' CC=aarch64-linux-gnu-gcc  --host=aarch64-linux-gnu)
+	(cd src/e2fsprogs && ./configure CFLAGS='-g -O2 -static' LDFLAGS="-static" CC=aarch64-linux-gnu-gcc  --host=aarch64-linux-gnu)
+	@$(MAKE) -C src/e2fsprogs
 	@$(MAKE) -C src/e2fsprogs/e2fsck e2fsck.static
 	@$(MAKE) -C src/e2fsprogs/misc mke2fs.static tune2fs.static
 	@cp src/e2fsprogs/e2fsck/e2fsck.static initramfs/bin/e2fsck
