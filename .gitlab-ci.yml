@@ -1,0 +1,18 @@
+image: ubuntu:18.04
+
+variables:
+  GIT_SUBMODULE_STRATEGY: none
+  ARCH: arm64
+  CROSS_COMPILE: aarch64-linux-gnu-
+
+build:
+  stage: build
+  script:
+    - apt update
+    - apt install git ca-certificates -y --no-install-recommends
+    - git submodule update --init -- src/busybox src/e2fsprogs
+    - apt install make git gcc-aarch64-linux-gnu gcc libc6-dev libc6-dev-arm64-cross libext2fs-dev uuid-dev libblkid-dev cpio -y --no-install-recommends
+    - make -j$(nproc) initramfs-pine64-pinephone.gz
+  artifacts:
+    paths:
+      - initramfs-pine64-pinephone.gz
