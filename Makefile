@@ -5,32 +5,36 @@ all: recovery-pinephone.img.xz recovery-pinetab.img.xz
 recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinephone.dtb
 	@echo "MKFS  $@"
 	@rm -f $@
+	-sudo umount -f mnt-$@
+	-sudo rmdir mnt-$@
 	@truncate --size 40M $@
 	@mkfs.ext4 $@
-	@mkdir mnt
-	@sudo mount $@ mnt
+	@mkdir mnt-$@
+	@sudo mount $@ mnt-$@
 
-	@sudo cp kernel-sunxi.gz mnt/vmlinuz
-	@sudo cp dtbs/sunxi/sun50i-a64-pinephone.dtb mnt/dtb
-	@sudo cp initramfs-pine64-pinephone.gz mnt/initrd.img
+	@sudo cp kernel-sunxi.gz mnt-$@/vmlinuz
+	@sudo cp dtbs/sunxi/sun50i-a64-pinephone.dtb mnt-$@/dtb
+	@sudo cp initramfs-pine64-pinephone.gz mnt-$@/initrd.img
 
-	@sudo umount $@
-	@rm -r mnt
+	@sudo umount -f mnt-$@
+	@sudo rmdir mnt-$@
 
 recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinetab.dtb
 	@echo "MKFS  $@"
 	@rm -f $@
+	-sudo umount -f mnt-$@
+	-sudo rmdir mnt-$@
 	@truncate --size 40M $@
 	@mkfs.ext4 $@
-	@mkdir mnt
-	@sudo mount $@
+	@mkdir mnt-$@
+	@sudo mount $@ mnt-$@
 
-	@cp kernel-sunxi.gz mnt/vmlinuz
-	@cp dtbs/sunxi/sun50i-a64-pinetab.dtb mnt/dtb
-	@cp initramfs-pine64-pinetab.gz mnt/initrd.img
+	@sudo cp kernel-sunxi.gz mnt-$@/vmlinuz
+	@sudo cp dtbs/sunxi/sun50i-a64-pinetab.dtb mnt-$@/dtb
+	@sudo cp initramfs-pine64-pinetab.gz mnt-$@/initrd.img
 
-	@sudo umount $@
-	@rm -r mnt
+	@sudo umount -f mnt-$@
+	@sudo rmdir mnt-$@
 
 %.img.xz: %.img
 	@echo "XZ    $@"
@@ -53,6 +57,10 @@ initramfs/bin/busybox: src/busybox src/busybox_config
 	@$(MAKE) -C src/busybox O=../../build/busybox $(CROSS_FLAGS)
 	@cp build/busybox/busybox initramfs/bin/busybox
 
+dtbs/sunxi/%.dtb: kernel-sunxi.gz
+	@mkdir -p dtbs/sunxi
+	@cp build/linux-sunxi/arch/arm64/boot/dts/allwinner/$(@F) $@
+
 splash/%.ppm.gz: splash/%.ppm
 	@echo "GZ    $@"
 	@gzip < $< > $@
@@ -74,12 +82,10 @@ initramfs-%.gz: initramfs-%.cpio
 kernel-sunxi.gz: src/linux_config
 	@echo "MAKE  $@"
 	@mkdir -p build/linux-sunxi
-	@mkdir -p dtbs/sunxi
 	@cp src/linux_config build/linux-sunxi/.config
 	@$(MAKE) -C src/linux O=../../build/linux-sunxi $(CROSS_FLAGS) olddefconfig
 	@$(MAKE) -C src/linux O=../../build/linux-sunxi $(CROSS_FLAGS)
 	@cp build/linux-sunxi/arch/arm64/boot/Image.gz $@
-	@cp build/linux-sunxi/arch/arm64/boot/dts/allwinner/*.dtb dtbs/sunxi/
 
 .PHONY: clean cleanfast
 
