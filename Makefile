@@ -10,13 +10,18 @@ recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi
 	@truncate --size 40M $@
 	@mkfs.ext4 $@
 	@mkdir mnt-$@
-	@sudo mount $@ mnt-$@
+	-sudo mknod -m 0660 "/tmp/recovery-pinephone-loop0" b 7 101
+	-sudo losetup -d /tmp/recovery-pinephone-loop0
+	@sudo losetup /tmp/recovery-pinephone-loop0 $@
+	@sudo mount /tmp/recovery-pinephone-loop0 mnt-$@
 
 	@sudo cp kernel-sunxi.gz mnt-$@/vmlinuz
 	@sudo cp dtbs/sunxi/sun50i-a64-pinephone.dtb mnt-$@/dtb
 	@sudo cp initramfs-pine64-pinephone.gz mnt-$@/initrd.img
 
 	@sudo umount -f mnt-$@
+	@sudo losetup -d /tmp/recovery-pinephone-loop0
+	@sudo rm -f /tmp/recovery-pinephone-loop0
 	@sudo rmdir mnt-$@
 
 recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinetab.dtb
@@ -27,13 +32,18 @@ recovery-pinetab.img: initramfs-pine64-pinetab.gz kernel-sunxi.gz dtbs/sunxi/sun
 	@truncate --size 40M $@
 	@mkfs.ext4 $@
 	@mkdir mnt-$@
-	@sudo mount $@ mnt-$@
+	-sudo mknod -m 0660 "/tmp/recovery-pinetab-loop0" b 7 105
+	-sudo losetup -d /tmp/recovery-pinetab-loop0
+	@sudo losetup /tmp/recovery-pinetab-loop0 $@
+	@sudo mount /tmp/recovery-pinetab-loop0 mnt-$@
 
 	@sudo cp kernel-sunxi.gz mnt-$@/vmlinuz
 	@sudo cp dtbs/sunxi/sun50i-a64-pinetab.dtb mnt-$@/dtb
 	@sudo cp initramfs-pine64-pinetab.gz mnt-$@/initrd.img
 
 	@sudo umount -f mnt-$@
+	@sudo losetup -d /tmp/recovery-pinetab-loop0
+	@sudo rm -f /tmp/recovery-pinetab-loop0
 	@sudo rmdir mnt-$@
 
 %.img.xz: %.img
@@ -104,3 +114,11 @@ clean: cleanfast
 	@rm -vf kernel*.gz
 	@rm -vf initramfs/bin/busybox
 	@rm -vrf dtbs
+	-sudo umount -f mnt-recovery-pinephone.img
+	-sudo umount -f mnt-recovery-pinetab.img
+	-sudo losetup -d /tmp/recovery-pinephone-loop0
+	-sudo losetup -d /tmp/recovery-pinetab-loop0
+	@sudo rm -f /tmp/recovery-pinephone-loop0
+	@sudo rm -f /tmp/recovery-pinetab-loop0
+	@sudo rm -rf mnt-recovery-pinephone.img
+	@sudo rm -rf mnt-recovery-pinetab.img
