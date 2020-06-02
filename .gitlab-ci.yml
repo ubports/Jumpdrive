@@ -13,9 +13,10 @@ build:
     - git submodule update --init -- src/busybox
     - git submodule update --init --depth=1 -- src/e2fsprogs src/linux
     - apt install make git gcc-aarch64-linux-gnu gcc libc6-dev libc6-dev-arm64-cross libext2fs-dev uuid-dev libblkid-dev cpio libncurses-dev flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf bc sudo -y --no-install-recommends
-    - make -j$(nproc) initramfs-pine64-pinetab.gz initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinetab.dtb dtbs/sunxi/sun50i-a64-pinephone.dtb
+    - make -j$(nproc) recovery-pinephone.img recovery-pinetab.img
   artifacts:
     paths:
       - initramfs-*.gz
       - dtbs/sunxi/*.dtb
       - kernel-sunxi.gz
+      - recovery-*.img
