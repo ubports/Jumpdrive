@@ -2,7 +2,7 @@ CROSS_FLAGS = ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
 
 all: recovery-pinephone.img.xz recovery-pinetab.img.xz
 
-recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinephone.dtb
+recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi/sun50i-a64-pinephone-1.1.dtb
 	@echo "MKFS  $@"
 	@rm -f $@
 	-sudo umount -f mnt-$@
@@ -16,7 +16,7 @@ recovery-pinephone.img: initramfs-pine64-pinephone.gz kernel-sunxi.gz dtbs/sunxi
 	@sudo mount /tmp/recovery-pinephone-loop0 mnt-$@
 
 	@sudo cp kernel-sunxi.gz mnt-$@/vmlinuz
-	@sudo cp dtbs/sunxi/sun50i-a64-pinephone.dtb mnt-$@/dtb
+	@sudo cp dtbs/sunxi/sun50i-a64-pinephone-1.1.dtb mnt-$@/dtb
 	@sudo cp initramfs-pine64-pinephone.gz mnt-$@/initrd.img
 
 	@sudo umount -f mnt-$@
