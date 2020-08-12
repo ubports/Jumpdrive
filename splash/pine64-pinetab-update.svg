@@ -7,13 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   height="800"
-   width="1280"
+   height="1280"
+   width="800"
    version="1.1"
-   viewBox="0 0 338.66666 211.66667"
+   viewBox="0 0 211.66666 338.66667"
    id="svg36"
-   sodipodi:docname="Installing Updates-landscape-1280x800.svg"
-   inkscape:version="0.92.5 (0.92.5+68)">
+   sodipodi:docname="pine64-pinetab-update.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
      id="metadata42">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -398,42 +398,41 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1859"
-     inkscape:window-height="1056"
+     inkscape:window-width="1920"
+     inkscape:window-height="1163"
      id="namedview38"
      showgrid="false"
-     inkscape:zoom="0.97990932"
-     inkscape:cx="589.65416"
-     inkscape:cy="758.40679"
-     inkscape:window-x="61"
-     inkscape:window-y="24"
+     inkscape:zoom="0.69290053"
+     inkscape:cx="34.254279"
+     inkscape:cy="798.72028"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg36" />
   <rect
-     style="color-rendering:auto;color:#000000;isolation:auto;mix-blend-mode:normal;paint-order:stroke fill markers;shape-rendering:auto;solid-color:#000000;image-rendering:auto;fill:#333333;fill-opacity:1"
-     transform="rotate(-90)"
+     style="color:#000000;isolation:auto;mix-blend-mode:normal;solid-color:#000000;fill:#333333;fill-opacity:1;paint-order:stroke fill markers;color-rendering:auto;image-rendering:auto;shape-rendering:auto"
      rx="0"
      ry="0"
-     height="338.7"
+     height="338.70001"
      width="211.7"
-     y="-.01667"
-     x="-211.7"
-     fill="#111"
+     y="-0.01668"
+     x="-0.016666949"
      id="rect2" />
   <text
      xml:space="preserve"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:0px;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      x="125.78648"
-     y="32.730515"
-     id="text5024"><tspan
+     y="-178.95282"
+     id="text5024"
+     transform="rotate(90)"><tspan
        sodipodi:role="line"
        id="tspan5022"
        x="125.78648"
-       y="32.730515"
+       y="-178.95282"
        style="fill:#dfdfdf;fill-opacity:1;stroke-width:0.26458332px">Installing Updates</tspan></text>
   <g
      id="g10-1"
-     transform="matrix(0.07033012,0,0,-0.07033012,78.887132,184.54347)">
+     transform="matrix(0,0.07033012,0.07033012,0,27.13986,78.887122)">
     <g
        id="g12-2">
       <g
