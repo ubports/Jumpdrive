@@ -73,13 +73,13 @@ dtbs/sunxi/%.dtb: kernel-sunxi.gz
 
 splash/%.ppm: splash/%.svg
 	@echo "CONVERT	$@"
-	@convert splash/$< RGBA:$@
+	@convert $< RGBA:$@
 
 splash/%.ppm.gz: splash/%.ppm
 	@echo "GZ    $@"
 	@gzip < $< > $@
 
-initramfs-%.cpio: initramfs/bin/busybox initramfs/bin/e2fsprogs initramfs/init initramfs/system-image-upgrader initramfs/init_functions.sh splash/%.ppm.gz splash/%-error.ppm.gz
+initramfs-%.cpio: initramfs/bin/busybox initramfs/bin/e2fsprogs initramfs/init initramfs/system-image-upgrader initramfs/init_functions.sh splash/%-waiting.ppm.gz splash/%-update.ppm.gz splash/%-error.ppm.gz
 	@echo "CPIO  $@"
 	@rm -rf initramfs-$*
 	@cp -r initramfs initramfs-$*
@@ -113,6 +113,7 @@ cleanfast:
 	@rm -vf *.cpio
 	@rm -vf *.gz
 	@rm -vf *.scr
+	@rm -vf splash/*.ppm
 	@rm -vf splash/*.gz
 
 clean: cleanfast
