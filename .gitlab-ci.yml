@@ -4,6 +4,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: none
   ARCH: arm64
   CROSS_COMPILE: aarch64-linux-gnu-
+  DEBIAN_FRONTEND: noninteractive
 
 build:
   stage: build
@@ -12,7 +13,7 @@ build:
     - apt install git ca-certificates -y --no-install-recommends
     - git submodule update --init -- src/busybox
     - git submodule update --init --depth=1 -- src/e2fsprogs src/linux
-    - apt install make git gcc-aarch64-linux-gnu gcc libc6-dev libc6-dev-arm64-cross libext2fs-dev uuid-dev libblkid-dev cpio libncurses-dev flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf bc sudo -y --no-install-recommends
+    - apt install make git gcc-aarch64-linux-gnu gcc libc6-dev libc6-dev-arm64-cross libext2fs-dev uuid-dev libblkid-dev cpio libncurses-dev flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf bc sudo imagemagick librsvg2-bin -y --no-install-recommends
     - make -j$(nproc) recovery-pinephone.img.xz recovery-pinetab.img.xz
   artifacts:
     paths:

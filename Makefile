@@ -71,6 +71,10 @@ dtbs/sunxi/%.dtb: kernel-sunxi.gz
 	@mkdir -p dtbs/sunxi
 	@cp build/linux-sunxi/arch/arm64/boot/dts/allwinner/$(@F) $@
 
+splash/%.ppm: splash/%.svg
+	@echo "CONVERT	$@"
+	@convert splash/$< RGBA:$@
+
 splash/%.ppm.gz: splash/%.ppm
 	@echo "GZ    $@"
 	@gzip < $< > $@
@@ -80,7 +84,8 @@ initramfs-%.cpio: initramfs/bin/busybox initramfs/bin/e2fsprogs initramfs/init i
 	@rm -rf initramfs-$*
 	@cp -r initramfs initramfs-$*
 	@cp src/info-$*.sh initramfs-$*/info.sh
-	@cp splash/$*.ppm.gz initramfs-$*/splash.ppm.gz
+	@cp splash/$*-waiting.ppm.gz initramfs-$*/waiting.ppm.gz
+	@cp splash/$*-update.ppm.gz initramfs-$*/update.ppm.gz
 	@cp splash/$*-error.ppm.gz initramfs-$*/error.ppm.gz
 	@cp src/info-$*.sh initramfs-$*/info.sh
 	@cd initramfs-$*; find . | cpio -H newc -o > ../$@
