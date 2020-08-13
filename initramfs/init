@@ -51,19 +51,11 @@ mknod /dev/null c 1 3
 mknod /dev/tty c 5 0
 mdev -s
 
-gzip -c -d splash.ppm.gz > /splash.ppm
+gzip -c -d waiting.ppm.gz > /waiting.ppm
+gzip -c -d update.ppm.gz > /update.ppm
 mkfifo cmd_pipe
 
-echo "
-BAR_WIDTH=620
-BAR_HEIGHT=20
-BAR_LEFT=50
-BAR_TOP=1100
-BAR_R=100
-BAR_G=100
-BAR_B=100" > splash_conf
-
-fbsplash -s /splash.ppm -f cmd_pipe -i splash_conf -c &
+fbsplash -s /waiting.ppm -f cmd_pipe -i /etc/splash.conf -c &
 
 if grep -q devnum= /proc/cmdline; then
     devnum=$(cat /proc/cmdline | sed "s/ /\n/g" | grep devnum= | awk -F "=" '{ print $2 }')
@@ -89,6 +81,9 @@ mount /cache
 mount /system
 mount /data
 if [ -f /cache/recovery/ubuntu_command ]; then
+	echo 'exit' > cmd_pipe
+	wait
+	fbsplash -s /update.ppm -f cmd_pipe -i /etc/splash.conf -c &
 	echo "0" > cmd_pipe
 
 	echo "Running system update!"

@@ -73,7 +73,7 @@ dtbs/sunxi/%.dtb: kernel-sunxi.gz
 
 splash/%.ppm: splash/%.svg
 	@echo "CONVERT	$@"
-	@convert $< RGBA:$@
+	@convert $< PPM:$@
 
 splash/%.ppm.gz: splash/%.ppm
 	@echo "GZ    $@"
@@ -87,6 +87,7 @@ initramfs-%.cpio: initramfs/bin/busybox initramfs/bin/e2fsprogs initramfs/init i
 	@cp splash/$*-waiting.ppm.gz initramfs-$*/waiting.ppm.gz
 	@cp splash/$*-update.ppm.gz initramfs-$*/update.ppm.gz
 	@cp splash/$*-error.ppm.gz initramfs-$*/error.ppm.gz
+	@cp splash/$*.conf initramfs-$*/etc/splash.conf
 	@cp src/info-$*.sh initramfs-$*/info.sh
 	@cd initramfs-$*; find . | cpio -H newc -o > ../$@
 
