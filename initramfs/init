@@ -52,7 +52,6 @@ mknod /dev/tty c 5 0
 mdev -s
 
 gzip -c -d waiting.ppm.gz > /waiting.ppm
-gzip -c -d update.ppm.gz > /update.ppm
 mkfifo cmd_pipe
 
 fbsplash -s /waiting.ppm -f cmd_pipe -i /etc/splash.conf -c &
@@ -83,6 +82,7 @@ mount /data
 if [ -f /cache/recovery/ubuntu_command ]; then
 	echo 'exit' > cmd_pipe
 	wait
+	gzip -c -d update.ppm.gz > /update.ppm
 	fbsplash -s /update.ppm -f cmd_pipe -i /etc/splash.conf -c &
 	echo "0" > cmd_pipe
 
